@@ -21,7 +21,6 @@ public class Comment {
     @Column
     private Timestamp timeCreated;
 
-    // KHỚP với User.java: mappedBy = "user"
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
