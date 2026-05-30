@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 public class ShoppingCart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @OneToMany(mappedBy = "cartId")
     private long id;
 
     public long getId() {
