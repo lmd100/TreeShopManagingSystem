@@ -15,8 +15,8 @@ public class JwtUtil {
         return JWT.create()
                 .withSubject(email)
                 .withClaim("role", role)
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION))
+                .withIssuedAt(Instant.now())
+                .withExpiresAt(Instant.now().plusSeconds(EXPIRATION)))
                 .sign(Algorithm.HMAC256(SECRET));
     }
 }
