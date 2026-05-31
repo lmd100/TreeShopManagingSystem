@@ -18,7 +18,7 @@ public class UserController {
     
     @Autowired
     private UserService userService;
-    
+    //get all users
     @GetMapping
     public ResponseEntity<ResponseDTO<List<UserDTO>>> getAllUsers() {
         try {
@@ -30,7 +30,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
+    //get user by id
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDTO<UserDTO>> getUserById(@PathVariable long id) {
         try {
@@ -47,7 +47,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
+    //create a new user
     @PostMapping
     public ResponseEntity<ResponseDTO<UserDTO>> createUser(@RequestBody UserDTO userDTO) {
         try {
@@ -59,7 +59,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
+    //update user via id
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDTO<UserDTO>> updateUser(@PathVariable long id, @RequestBody UserDTO userDTO) {
         try {
@@ -76,7 +76,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
+    //delete a user
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDTO<Void>> deleteUser(@PathVariable long id) {
         try {
@@ -93,7 +93,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
+    //search user by name 
     @GetMapping("/search/{query}")
     public ResponseEntity<ResponseDTO<List<UserDTO>>> searchUsers(@PathVariable String query) {
         try {
@@ -105,7 +105,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
+    //search user by email
     @GetMapping("/email/{email}")
     public ResponseEntity<ResponseDTO<UserDTO>> getUserByEmail(@PathVariable String email) {
         try {

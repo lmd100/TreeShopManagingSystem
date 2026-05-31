@@ -26,11 +26,16 @@ public class UserService {
         return userRepository.findById(id)
                 .map(this::convertToDTO);
     }
-    
+    //debuging, marked for deletion later
     public UserDTO createUser(UserDTO userDTO) {
+    try {
         User user = convertToEntity(userDTO);
         User savedUser = userRepository.save(user);
         return convertToDTO(savedUser);
+    } catch (Exception e) {
+        e.printStackTrace();  
+        throw e;
+    }
     }
     
     public UserDTO updateUser(long id, UserDTO userDTO) {
@@ -85,14 +90,17 @@ public class UserService {
         return dto;
     }
     
-    private User convertToEntity(UserDTO dto) {
-        User user = new User();
+private User convertToEntity(UserDTO dto) {
+    User user = new User();
+    if (dto.getId() != null) 
+     {
         user.setId(dto.getId());
-        user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
-        user.setFullName(dto.getFullName());
-        user.setPhone(dto.getPhone());
-        user.setStatus(dto.isStatus());
-        return user;
-    }
+     } 
+    user.setEmail(dto.getEmail());
+    user.setPassword(dto.getPassword());
+    user.setFullName(dto.getFullName());
+    user.setPhone(dto.getPhone());
+    user.setStatus(dto.isStatus());
+    return user;
+}
 }

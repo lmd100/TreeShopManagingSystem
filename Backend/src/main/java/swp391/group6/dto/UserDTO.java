@@ -9,7 +9,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO implements Serializable {
-    private long id;
+    private Long id; //does not work with primitive data for some reasons, might be related to the db datatype
     private String email;
     private String password;
     private String fullName;
