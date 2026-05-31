@@ -1,12 +1,12 @@
 package swp391.group6.model;
 
 import jakarta.persistence.*;
-
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "Tickets")
 public class Ticket {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -18,7 +18,12 @@ public class Ticket {
     private String detail;
 
     @ManyToOne
-    private User creator;
+    @JoinColumn(name = "creator_id")
+    private User ticketCreator;
+
+    @ManyToOne
+    @JoinColumn(name = "assignee_id")
+    private User assignee;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -37,86 +42,33 @@ public class Ticket {
     @Column
     private Timestamp timeResolved;
 
-    @ManyToOne
-    private User user;
+    public long getId() { return id; }
+    public void setId(long id) { this.id = id; }
 
-    public long getId() {
-        return id;
-    }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+    public String getDetail() { return detail; }
+    public void setDetail(String detail) { this.detail = detail; }
 
-    public String getTitle() {
-        return title;
-    }
+    public User getTicketCreator() { return ticketCreator; }
+    public void setTicketCreator(User ticketCreator) { this.ticketCreator = ticketCreator; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public User getAssignee(){ return assignee;}
+    public void setAssignee(User assignee){ this.assignee = assignee;}
 
-    public String getDetail() {
-        return detail;
-    }
+    public TicketState getTicketState() { return ticketState; }
+    public void setTicketState(TicketState ticketState) { this.ticketState = ticketState; }
 
-    public void setDetail(String detail) {
-        this.detail = detail;
-    }
+    public Priority getPriority() { return priority; }
+    public void setPriority(Priority priority) { this.priority = priority; }
 
-    public User getCreator() {
-        return creator;
-    }
+    public String getTicketType() { return ticketType; }
+    public void setTicketType(String ticketType) { this.ticketType = ticketType; }
 
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
+    public Timestamp getTimeCreated() { return timeCreated; }
+    public void setTimeCreated(Timestamp timeCreated) { this.timeCreated = timeCreated; }
 
-    public TicketState getState() {
-        return ticketState;
-    }
-
-    public void setState(TicketState ticketState) {
-        this.ticketState = ticketState;
-    }
-
-    public Priority getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Priority priority) {
-        this.priority = priority;
-    }
-
-    public String getTicketType() {
-        return ticketType;
-    }
-
-    public void setTicketType(String ticketType) {
-        this.ticketType = ticketType;
-    }
-
-    public Timestamp getTimeCreated() {
-        return timeCreated;
-    }
-
-    public void setTimeCreated(Timestamp timeCreated) {
-        this.timeCreated = timeCreated;
-    }
-
-    public Timestamp getTimeResolved() {
-        return timeResolved;
-    }
-
-    public void setTimeResolved(Timestamp timeResolved) {
-        this.timeResolved = timeResolved;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public Timestamp getTimeResolved() { return timeResolved; }
+    public void setTimeResolved(Timestamp timeResolved) { this.timeResolved = timeResolved; }
 }

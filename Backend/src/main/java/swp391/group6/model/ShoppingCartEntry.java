@@ -5,12 +5,18 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "ShoppingCartEntry")
 public class ShoppingCartEntry {
-    @Id
+
+    @EmbeddedId
+    private ShoppingCartEntryId id;
+
     @ManyToOne
+    @MapsId("productId")
+    @JoinColumn(name = "product_id")
     private Product product;
 
-    @Id
     @ManyToOne
+    @MapsId("shoppingCartId")
+    @JoinColumn(name = "shopping_cart_id")
     private ShoppingCart shoppingCart;
 
     @Column(nullable = false)
