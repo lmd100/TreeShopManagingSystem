@@ -190,16 +190,16 @@ CREATE INDEX idx_blog_published ON blog_posts(is_published);
 --  USERS — 10 người
 -- ============================================================
 INSERT INTO users (role_id, email, password, full_name, phone, status) VALUES
-(5, 'admin@greenshop.vn',   'hashed_pw_1', 'Nguyễn Văn Admin',    '0901000001', TRUE),
-(2, 'manager@greenshop.vn', 'hashed_pw_2', 'Trần Thị Manager',    '0901000002', TRUE),
-(3, 'shipper1@greenshop.vn','hashed_pw_3', 'Lê Văn Shipper',      '0901000003', TRUE),
-(4, 'support@greenshop.vn', 'hashed_pw_4', 'Phạm Thị Support',    '0901000004', TRUE),
-(1, 'khach1@gmail.com',     'hashed_pw_5', 'Hoàng Minh Tuấn',     '0912345601', TRUE),
-(1, 'khach2@gmail.com',     'hashed_pw_6', 'Nguyễn Thị Lan',      '0912345602', TRUE),
-(1, 'khach3@gmail.com',     'hashed_pw_7', 'Vũ Đức Thành',        '0912345603', TRUE),
-(1, 'khach4@gmail.com',     'hashed_pw_8', 'Đặng Thu Hương',      '0912345604', TRUE),
-(1, 'khach5@gmail.com',     'hashed_pw_9', 'Bùi Quang Huy',       '0912345605', TRUE),
-(1, 'khach6@gmail.com',     'hashed_pw_10','Lý Thị Mai',          '0912345606', TRUE);
+(5, 'admin@greenshop.vn',   '$2a$10$zUuzRUvsOH8nimZ/6lsPjulnRHrSvOzYJBTTi4oHlOqWgHzt4a6qW', 'Nguyễn Văn Admin',    '0901000001', TRUE),
+(2, 'manager@greenshop.vn', '$2a$10$A9Q6dl4y.iQJP17qh9bhO.iNLk6rXYJgRPsaRLdftmv6SBfqIiE2a', 'Trần Thị Manager',    '0901000002', TRUE),
+(3, 'shipper1@greenshop.vn','$2a$10$v/Tois3Yz7/IUAjX1xa8zucglisqqtzIDMxkx8w8UZfDgEM2/DQ0i', 'Lê Văn Shipper',      '0901000003', TRUE),
+(4, 'support@greenshop.vn', '$2a$10$WD9TzMIoFF2HeQ2i8mg9COIf8o7MY.jlAo3mR58q1ASMduxLxwIoe', 'Phạm Thị Support',    '0901000004', TRUE),
+(1, 'khach1@gmail.com',     '$2a$10$bYepmqDIFtLHufQ39FhQxuX2dhPeUtzDcvf0868FSOgyGpCf0lhmi', 'Hoàng Minh Tuấn',     '0912345601', TRUE),
+(1, 'khach2@gmail.com',     '$2a$10$uSQpjK3zgkNtvaCz4daxt.jlbT7p05zWykHz2qqtCff4tfIjKw5dm', 'Nguyễn Thị Lan',      '0912345602', TRUE),
+(1, 'khach3@gmail.com',     '$2a$10$6C6K1VVzL3AU1awnFwIs/erFeGnZa2afajieslO/VWhUUPADeW2re', 'Vũ Đức Thành',        '0912345603', TRUE),
+(1, 'khach4@gmail.com',     '$2a$10$DSoyFP33CagNeomlF.gUteBOxPzTICRHfWtwlg0jD6i.wDfUuqDDm', 'Đặng Thu Hương',      '0912345604', TRUE),
+(1, 'khach5@gmail.com',     '$2a$10$cIjhGxmnba.JgJcr7qi9a.Q25KOvM0O2tucA3l7gpQueqNbyQN6gG', 'Bùi Quang Huy',       '0912345605', TRUE),
+(1, 'khach6@gmail.com',     '$2a$10$lLkYkek4Cc39DHC4WVnWJuKWVJS1nOSmHVdxYYfobuEjxVcbM57f2','Lý Thị Mai',          '0912345606', TRUE);
 
 -- ============================================================
 --  CATEGORIES — 6 danh mục
