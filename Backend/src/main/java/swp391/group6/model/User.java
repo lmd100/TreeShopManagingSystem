@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
-@Table(name = "Users")
+@Table(name = "users")
 public class User {
 
     @Id
@@ -48,7 +48,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Order> orderList;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "customer")
     private ShoppingCart shoppingCart;
 
     public long getId() { return id; }
