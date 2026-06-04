@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Footer from './components/global/Footer'
 import Header from './components/global/Header'
 import { AuthProvider, useAuth } from './context/AuthContext'
@@ -6,6 +6,7 @@ import CatalogPage from './pages/CatalogPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import ManagementPage from './pages/ManagementPage'
+import ProductDetailPage from './pages/ProductDetailPage'
 
 function RequireAuth({ children, managerOnly = false }) {
   const { isAuthenticated, canManage } = useAuth()
@@ -50,11 +51,7 @@ function AppRoutes() {
       />
       <Route
         path="/catalog"
-        element={
-          <RequireAuth>
-            <CatalogPage />
-          </RequireAuth>
-        }
+        element={<CatalogPage />}
       />
       <Route
         path="/manage"
@@ -64,6 +61,7 @@ function AppRoutes() {
           </RequireAuth>
         }
       />
+      <Route path="/catalog/:productId" element={<ProductDetailPage />} />
       <Route path="/admin" element={<Navigate to="/manage" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -73,13 +71,11 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <div className="min-h-screen bg-[var(--social-bg)]/50 text-[var(--text-h)]">
-          <Header />
-          <AppRoutes />
-          <Footer />
-        </div>
-      </BrowserRouter>
+      <div className="min-h-screen bg-[var(--social-bg)]/50 text-[var(--text-h)]">
+        <Header />
+        <AppRoutes />
+        <Footer />
+      </div>
     </AuthProvider>
   )
 }
