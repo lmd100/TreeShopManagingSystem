@@ -1,76 +1,183 @@
-﻿import { createContext, useEffect, useState } from "react";
-import { loginApi, registerApi } from "../data/authApi";
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { login as loginRequest } from '../features/auth/authApi'
+import { loginApi, registerApi } from '../data/authApi'
 
-export const AuthContext = createContext();
+const STORAGE_KEY = 'treeshop-auth-user'
+
+export const AuthContext = createContext(null)
+
+function readStoredUser() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  try {
+    const storedValue =
+      window.localStorage.getItem(STORAGE_KEY) ||
+      window.localStorage.getItem('currentUser')
+    return storedValue ? JSON.parse(storedValue) : null
+  } catch {
+    return null
+  }
+}
+
+function persistUser(user) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  if (user) {
+    const serialized = JSON.stringify(user)
+    window.localStorage.setItem(STORAGE_KEY, serialized)
+    window.localStorage.setItem('currentUser', serialized)
+  } else {
+    window.localStorage.removeItem(STORAGE_KEY)
+    window.localStorage.removeItem('currentUser')
+  }
+}
+
+function normalizeUser(raw) {
+  if (!raw) {
+    return null
+  }
+
+  const role = raw.role ?? raw.roleName ?? null
+
+  return {
+    ...raw,
+    role,
+    roleName: raw.roleName ?? role,
+  }
+}
+
+function canManageRole(user) {
+  const role = user?.role ?? user?.roleName
+  return role === 'MANAGER' || role === 'SYSTEM_ADMIN'
+}
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("currentUser");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-  const [isLoading, setIsLoading] = useState(user ? false : true);
-  const [error, setError] = useState(null);
+  const [user, setUser] = useState(() => normalizeUser(readStoredUser()))
+  const [isLoading, setIsLoading] = useState(() => !readStoredUser())
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (user) return;
+    if (user) {
+      setIsLoading(false)
+      return
+    }
 
-    const fetchUser = async () => {
+    let cancelled = false
+
+    async function fetchCurrentUser() {
       try {
-        const response = await fetch("/api/users/me", {
-          method: "GET",
-          credentials: "include",
-        });
+        const response = await fetch('/api/users/me', {
+          method: 'GET',
+          credentials: 'include',
+        })
+
+        if (cancelled) {
+          return
+        }
 
         if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-          localStorage.setItem("currentUser", JSON.stringify(userData));
+          const userData = normalizeUser(await response.json())
+          setUser(userData)
+          persistUser(userData)
         } else {
-          setUser(null);
-          localStorage.removeItem("currentUser");
+          setUser(null)
+          persistUser(null)
         }
       } catch (err) {
-        setError(err.message);
-        setUser(null);
+        if (!cancelled) {
+          setError(err.message)
+          setUser(null)
+          persistUser(null)
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false)
+        }
       }
-    };
-
-    fetchUser();
-  }, []);
-
-  const executeAuth = async (authOption = "login", formData) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      let userData;
-      if (authOption === "login") {
-        userData = await loginApi(formData);
-      } else if (authOption === "register") {
-        userData = await registerApi(formData);
-      }
-      setUser(userData);
-      localStorage.setItem("currentUser", JSON.stringify(userData));
-      return userData;
-    } catch (err) {
-      setError(err.message || err);
-      throw err;
-    } finally {
-      setIsLoading(false);
     }
-  };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("currentUser");
-  };
+    fetchCurrentUser()
 
-  const isAdmin = user?.roleName === "SYSTEM_ADMIN";
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
-  return (
-    <AuthContext.Provider value={{ user, isAdmin, isLoading, error, executeAuth, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  async function login(email, password) {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const loggedInUser = normalizeUser(await loginRequest(email, password))
+      setUser(loggedInUser)
+      persistUser(loggedInUser)
+      return loggedInUser
+    } catch (err) {
+      setError(err.message || String(err))
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function executeAuth(authOption = 'login', formData) {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      let userData
+      if (authOption === 'login') {
+        userData = normalizeUser(await loginApi(formData))
+      } else if (authOption === 'register') {
+        userData = normalizeUser(await registerApi(formData))
+      } else {
+        throw new Error(`Unsupported auth option: ${authOption}`)
+      }
+
+      setUser(userData)
+      persistUser(userData)
+      return userData
+    } catch (err) {
+      setError(err.message || String(err))
+      throw err
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  function logout() {
+    setUser(null)
+    persistUser(null)
+  }
+
+  const value = useMemo(
+    () => ({
+      user,
+      login,
+      logout,
+      executeAuth,
+      isLoading,
+      error,
+      isAuthenticated: Boolean(user),
+      canManage: canManageRole(user),
+      isAdmin: (user?.roleName ?? user?.role) === 'SYSTEM_ADMIN',
+    }),
+    [user, isLoading, error],
+  )
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+
+  return context
 }
