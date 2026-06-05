@@ -17,6 +17,10 @@ export default defineConfig({
           })
         },
       },
+      '/product-images': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
     },
   },
 })
