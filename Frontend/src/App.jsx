@@ -1,8 +1,8 @@
-<<<<<<< HEAD
-﻿import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import UserManagement from "./pages/UserManagement";
 import Authentication from "./pages/Authentication";
+import OrderManagement from "./pages/OrderManagement";
 import TicketDashboard from "./features/tickets/TicketDashboard";
 import TicketDetail from "./features/tickets/TicketDetail";
 
@@ -34,6 +34,8 @@ function AppRoutes() {
       <Route path="/register" element={<Authentication />} />
       <Route path="/tickets" element={<TicketDashboard />} />
       <Route path="/tickets/:id" element={<TicketDetail />} />
+      <Route path="/orders" element={<OrderManagement />} />
+      <Route path="/orders/*" element={<OrderManagement />} />
       <Route path="/" element={<Navigate to="/admin/users" replace />} />
       <Route path="/admin/users" element={<ProtectedAdminRoute element={<UserManagement />} />} />
       <Route path="*" element={<Navigate to="/admin/users" replace />} />
@@ -43,18 +45,6 @@ function AppRoutes() {
 
 const App = () => {
   return <AppRoutes />;
-=======
-import { Route, Routes } from "react-router-dom";
-import OrderManagement from "./pages/OrderManagement";
-
-const App = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<OrderManagement />} />
-      <Route path="/orders/*" element={<OrderManagement />} />
-    </Routes>
-  );
->>>>>>> upstream/LKT
 };
 
 export default App;
