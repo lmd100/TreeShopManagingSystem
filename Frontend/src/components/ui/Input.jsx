@@ -30,3 +30,5 @@ export default function Input({ label, error, className, id, ...props }) {
     </label>
   )
 }
+
+export { Input }

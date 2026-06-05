@@ -10,7 +10,8 @@ import LoginPage from './pages/LoginPage'
 import ManagementPage from './pages/ManagementPage'
 import OrderManagement from './pages/OrderManagement'
 import ProductDetailPage from './pages/ProductDetailPage'
-import Authentication from './pages/Authentication'
+import ProfilePage from './pages/ProfilePage'
+import RegisterPage from './pages/RegisterPage'
 import UserManagement from './pages/UserManagement'
 
 function RequireAuth({ children, managerOnly = false }) {
@@ -87,9 +88,24 @@ function AppRoutes() {
           </PublicOnlyRoute>
         }
       />
-      <Route path="/register" element={<Authentication />} />
+      <Route
+        path="/register"
+        element={
+          <PublicOnlyRoute>
+            <RegisterPage />
+          </PublicOnlyRoute>
+        }
+      />
       <Route path="/catalog" element={<CatalogPage />} />
       <Route path="/catalog/:productId" element={<ProductDetailPage />} />
+      <Route
+        path="/profile"
+        element={
+          <RequireAuth>
+            <ProfilePage />
+          </RequireAuth>
+        }
+      />
       <Route
         path="/manage"
         element={

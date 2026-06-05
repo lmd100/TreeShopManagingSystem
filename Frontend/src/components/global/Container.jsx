@@ -10,3 +10,5 @@ export default function Container({ className, children, ...props }) {
     </div>
   )
 }
+
+export { Container }

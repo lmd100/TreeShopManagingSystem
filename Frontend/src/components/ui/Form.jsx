@@ -7,3 +7,5 @@ export default function Form({ className, children, ...props }) {
     </form>
   )
 }
+
+export { Form }

@@ -1,5 +1,8 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { login as loginRequest } from '../features/auth/authApi'
+import {
+  login as loginRequest,
+  register as registerRequest,
+} from '../features/auth/authApi'
 import { loginApi, registerApi } from '../data/authApi'
 
 const STORAGE_KEY = 'treeshop-auth-user'
@@ -124,6 +127,11 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function register(fullName, email, password) {
+    setError(null)
+    await registerRequest(fullName, email, password)
+  }
+
   async function executeAuth(authOption = 'login', formData) {
     setIsLoading(true)
     setError(null)
@@ -158,6 +166,7 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       login,
+      register,
       logout,
       executeAuth,
       isLoading,

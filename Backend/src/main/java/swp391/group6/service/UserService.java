@@ -20,75 +20,65 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
-    
+
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll().stream()
-                .filter(user -> !hasRole(user, PROTECTED_ROLE_NAME))
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-    
+
     public Optional<UserDTO> getUserById(long id) {
         return userRepository.findById(id)
-                .filter(user -> !hasRole(user, PROTECTED_ROLE_NAME))
                 .map(this::convertToDTO);
     }
 
     public UserDTO createUser(UserDTO userDTO) {
         validateUserForCreate(userDTO);
         User user = convertToEntity(userDTO);
-        user.setRole(resolveRole(userDTO.getRoleName()));
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         User savedUser = userRepository.save(user);
         return convertToDTO(savedUser);
     }
 
-    private Role resolveRole(String roleName) {
-        String requestedRole = roleName == null || roleName.isBlank()
-                ? DEFAULT_ROLE_NAME
-                : roleName.trim();
-
-        if (PROTECTED_ROLE_NAME.equalsIgnoreCase(requestedRole)) {
-            throw new IllegalArgumentException("System admin role cannot be assigned");
-        }
-
-        return roleRepository.findByNameIgnoreCase(requestedRole)
-                .orElseThrow(() -> new IllegalArgumentException("Role not found"));
-    }
-
     private void validateUserForCreate(UserDTO userDTO) {
-            if (userDTO == null) {
-                throw new IllegalArgumentException("User data is required");
-            }
-            }
+        if (userDTO == null) {
+            throw new IllegalArgumentException("User data is required");
+        }
+        if (userDTO.getEmail() == null || userDTO.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        if (userDTO.getPassword() == null || userDTO.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+    }
 
     public UserDTO updateUser(long id, UserDTO userDTO) {
-        if (userDTO == null) throw new IllegalArgumentException("User data is required");
-
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null || hasRole(user, PROTECTED_ROLE_NAME)) return null;
-
-        if (userDTO.getPassword() != null && !userDTO.getPassword().isBlank())
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        if (userDTO.getFullName() != null) user.setFullName(userDTO.getFullName());
-        if (userDTO.getPhone() != null) user.setPhone(userDTO.getPhone());
-        if (userDTO.getRoleName() != null && !userDTO.getRoleName().isBlank())
-            user.setRole(resolveRole(userDTO.getRoleName()));
-        if (userDTO.getStatus() != null) user.setStatus(userDTO.getStatus());
-
-        return convertToDTO(userRepository.save(user));
-    }
-    
-    public boolean deleteUser(long id) {
         Optional<User> existingUser = userRepository.findById(id);
-        if (existingUser.isPresent() && !hasRole(existingUser.get(), PROTECTED_ROLE_NAME)) {
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            if (userDTO.getEmail() != null) user.setEmail(userDTO.getEmail());
+            if (userDTO.getPassword() != null) user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            if (userDTO.getFullName() != null) user.setFullName(userDTO.getFullName());
+            if (userDTO.getPhone() != null) user.setPhone(userDTO.getPhone());
+
+            // Cập nhật dùng isStatus() cho kiểu boolean nguyên thủy
+            user.setStatus(userDTO.isStatus());
+
+            User updatedUser = userRepository.save(user);
+            return convertToDTO(updatedUser);
+        }
+        return null;
+    }
+
+    public boolean deleteUser(long id) {
+        if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
             return true;
         }
@@ -113,17 +103,15 @@ public class UserService {
         user.setStatus(status);
         return convertToDTO(userRepository.save(user));
     }
-    
+
     public List<UserDTO> searchUsers(String query) {
         return userRepository.search(query).stream()
-                .filter(user -> !hasRole(user, PROTECTED_ROLE_NAME))
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-    
+
     public Optional<UserDTO> getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .filter(user -> !hasRole(user, PROTECTED_ROLE_NAME))
                 .map(this::convertToDTO);
     }
 
@@ -137,12 +125,15 @@ public class UserService {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
         dto.setEmail(user.getEmail());
+        dto.setPassword(user.getPassword());
         dto.setFullName(user.getFullName());
         dto.setPhone(user.getPhone());
         if (user.getRole() != null) {
             dto.setRoleName(user.getRole().getName());
         }
+
         dto.setStatus(user.isStatus());
+
         if (user.getCreatedAt() != null) {
             dto.setCreatedAt(user.getCreatedAt().toString());
         }
@@ -156,8 +147,17 @@ public class UserService {
         user.setPassword(dto.getPassword());
         user.setFullName(dto.getFullName());
         user.setPhone(dto.getPhone());
-        user.setStatus(dto.getStatus() == null || dto.getStatus());
+        user.setStatus(dto.isStatus());
         user.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+
+        String roleName = (dto.getRoleName() != null && !dto.getRoleName().isBlank()) ? dto.getRoleName() : DEFAULT_ROLE_NAME;
+        Role role = roleRepository.findByName(roleName).orElse(null);
+        if (role == null) {
+            role = new Role();
+            role.setId(1L);
+        }
+        user.setRole(role);
+
         return user;
     }
 

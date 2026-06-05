@@ -43,3 +43,5 @@ export default function Select({
     </label>
   )
 }
+
+export { Select }
