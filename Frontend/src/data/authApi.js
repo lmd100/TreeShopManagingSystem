@@ -7,6 +7,8 @@ export const loginApi = async () => {
 		body: JSON.stringify({
 			email: "admin@greenshop.vn",
 			password: "admin",
+			email: "support@greenshop.vn",
+			password: "123456",
 		}),
 	})
 
