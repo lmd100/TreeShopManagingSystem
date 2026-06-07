@@ -1,5 +1,5 @@
 // Created by minhlthe200133
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
 import {
@@ -10,7 +10,7 @@ import {
 
 function createEmptyRow() {
   return {
-    id: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+    id: globalThis.crypto?.randomUUID?.() || `variant-row-${Date.now()}-${Math.random()}`,
     name: '',
     values: '',
   }
@@ -22,23 +22,17 @@ function normalizeRows(value) {
     return [createEmptyRow()]
   }
 
-  return groups.map((group) => ({
-    id: globalThis.crypto?.randomUUID?.() || `${group.name}-${Math.random()}`,
+  return groups.map((group, index) => ({
+    id: globalThis.crypto?.randomUUID?.() || `variant-row-${index}-${Math.random()}`,
     name: group.name,
     values: group.values,
   }))
 }
 
 export default function ProductVariantsEditor({ value, error, onChange }) {
-  const initialRows = useMemo(() => normalizeRows(value), [value])
-  const [rows, setRows] = useState(initialRows)
-
-  useEffect(() => {
-    setRows(initialRows)
-  }, [initialRows])
+  const rows = useMemo(() => normalizeRows(value), [value])
 
   function emitChange(nextRows) {
-    setRows(nextRows)
     onChange?.('variants', serializeVariantGroups(nextRows))
   }
 

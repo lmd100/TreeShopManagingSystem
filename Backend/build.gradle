@@ -23,6 +23,7 @@ dependencies {
 	implementation 'com.auth0:java-jwt:4.5.1'
 	implementation 'org.postgresql:postgresql:42.7.10'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testRuntimeOnly 'com.h2database:h2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
