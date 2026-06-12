@@ -27,13 +27,23 @@ export async function register(fullName, email, password) {
     body: JSON.stringify({ fullName, email, password }),
   })
 
-  if (res.status === 400) {
-    const message = await res.text()
-    throw new Error(message) // "Email already exists"
+  if (res.status === 409) {
+    throw new Error('Email already registered')
   }
 
   if (!res.ok) {
     throw new Error('Registration failed')
   }
   // 201 Created, no body — just returns
+}
+
+export async function logout() {
+  const res = await fetch(`${BASE}/logout`, {
+    method: 'POST',
+    credentials: 'include',
+  })
+
+  if (!res.ok) {
+    throw new Error('Logout failed')
+  }
 }

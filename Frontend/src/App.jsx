@@ -5,6 +5,7 @@ import TicketDashboard from './features/tickets/TicketDashboard'
 import TicketDetail from './features/tickets/TicketDetail'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import CatalogPage from './pages/CatalogPage'
+import ChangePasswordPage from './pages/ChangePasswordPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import ManagementPage from './pages/ManagementPage'
@@ -105,6 +106,14 @@ function AppRoutes() {
         element={
           <RequireAuth>
             <ProfilePage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/change-password"
+        element={
+          <RequireAuth>
+            <ChangePasswordPage />
           </RequireAuth>
         }
       />

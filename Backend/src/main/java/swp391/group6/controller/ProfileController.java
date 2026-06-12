@@ -6,18 +6,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import swp391.group6.dto.LoginResponse;
 import swp391.group6.dto.ProfileResponse;
+import swp391.group6.dto.ChangePasswordRequest;
 import swp391.group6.dto.UserDTO;
+import swp391.group6.service.ChangePasswordService;
 import swp391.group6.service.UserService;
 import swp391.group6.util.JWTUtil;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/profile")
 public class ProfileController {
 
     private final UserService userService;
+    private final ChangePasswordService changePasswordService;
 
-    public ProfileController(UserService userService) {
+    public ProfileController(UserService userService, ChangePasswordService changePasswordService) {
         this.userService = userService;
+        this.changePasswordService = changePasswordService;
     }
 
     @GetMapping
@@ -41,7 +47,8 @@ public class ProfileController {
                 user.getEmail(),
                 user.getFullName(),
                 user.getPhone() != null ? user.getPhone() : "",
-                user.isStatus()
+                user.isStatus(),
+                user.getPassword() != null && !user.getPassword().isBlank()
         );
 
         return ResponseEntity.ok(response);
@@ -64,7 +71,7 @@ public class ProfileController {
         }
 
         try {
-            UserDTO updatedUser = userService.updateUser(currentUser.getId(), userDTO);
+            UserDTO updatedUser = userService.updateProfile(currentUser.getId(), userDTO);
 
             if (updatedUser == null) {
                 return ResponseEntity.notFound().build();
@@ -74,7 +81,8 @@ public class ProfileController {
                     updatedUser.getEmail(),
                     updatedUser.getFullName(),
                     updatedUser.getPhone() != null ? updatedUser.getPhone() : "",
-                    updatedUser.isStatus()
+                    updatedUser.isStatus(),
+                    updatedUser.getPassword() != null && !updatedUser.getPassword().isBlank()
             );
 
             return ResponseEntity.ok(response);
@@ -82,5 +90,22 @@ public class ProfileController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest,
+                                            HttpServletRequest request) {
+        LoginResponse currentUser = JWTUtil.getUser(request);
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return switch (changePasswordService.changePassword(currentUser.getEmail(), changePasswordRequest)) {
+            case SUCCESS -> ResponseEntity.ok().build();
+            case WRONG_OLD_PASSWORD -> ResponseEntity.badRequest()
+                    .body(Map.of("message", "Wrong old password"));
+            case INVALID_INPUT -> ResponseEntity.badRequest()
+                    .body(Map.of("message", "Invalid input"));
+        };
     }
 }

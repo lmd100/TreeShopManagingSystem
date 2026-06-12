@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
   login as loginRequest,
+  logout as logoutRequest,
   register as registerRequest,
 } from '../features/auth/authApi'
-import { loginApi, logoutApi, registerApi } from '../data/authApi'
+import { loginApi, registerApi } from '../data/authApi'
 
 const STORAGE_KEY = 'treeshop-auth-user'
 
@@ -159,11 +160,19 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     try {
-      await logoutApi()
+      await logoutRequest()
     } finally {
       setUser(null)
       persistUser(null)
     }
+  }
+
+  function updateUser(changes) {
+    setUser((currentUser) => {
+      const updatedUser = normalizeUser({ ...currentUser, ...changes })
+      persistUser(updatedUser)
+      return updatedUser
+    })
   }
 
   const value = useMemo(
@@ -172,6 +181,7 @@ export function AuthProvider({ children }) {
       login,
       register,
       logout,
+      updateUser,
       executeAuth,
       isLoading,
       error,

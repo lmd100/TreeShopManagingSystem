@@ -77,6 +77,26 @@ public class UserService {
         return null;
     }
 
+    public UserDTO updateProfile(long id, UserDTO userDTO) {
+        if (userDTO == null) {
+            throw new IllegalArgumentException("User data is required");
+        }
+
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        if (userDTO.getFullName() != null && !userDTO.getFullName().isBlank()) {
+            user.setFullName(userDTO.getFullName().trim());
+        }
+        if (userDTO.getPhone() != null) {
+            user.setPhone(userDTO.getPhone().trim());
+        }
+
+        return convertToDTO(userRepository.save(user));
+    }
+
     public boolean deleteUser(long id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
