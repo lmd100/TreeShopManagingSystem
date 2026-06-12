@@ -3,7 +3,7 @@ import {
   login as loginRequest,
   register as registerRequest,
 } from '../features/auth/authApi'
-import { loginApi, registerApi } from '../data/authApi'
+import { loginApi, logoutApi, registerApi } from '../data/authApi'
 
 const STORAGE_KEY = 'treeshop-auth-user'
 
@@ -157,9 +157,13 @@ export function AuthProvider({ children }) {
     }
   }
 
-  function logout() {
-    setUser(null)
-    persistUser(null)
+  async function logout() {
+    try {
+      await logoutApi()
+    } finally {
+      setUser(null)
+      persistUser(null)
+    }
   }
 
   const value = useMemo(
