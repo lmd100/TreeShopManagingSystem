@@ -189,16 +189,16 @@ CREATE INDEX idx_blog_published ON blog_posts(is_published);
 --  USERS — 10 người
 -- ============================================================
 INSERT INTO users (role_id, email, password, full_name, phone, status) VALUES
-(5, 'admin@greenshop.vn',   '$2a$10$zUuzRUvsOH8nimZ/6lsPjulnRHrSvOzYJBTTi4oHlOqWgHzt4a6qW', 'Nguyễn Văn Admin',    '0901000001', TRUE),
-(2, 'manager@greenshop.vn', '$2a$10$A9Q6dl4y.iQJP17qh9bhO.iNLk6rXYJgRPsaRLdftmv6SBfqIiE2a', 'Trần Thị Manager',    '0901000002', TRUE),
-(3, 'shipper1@greenshop.vn','$2a$10$v/Tois3Yz7/IUAjX1xa8zucglisqqtzIDMxkx8w8UZfDgEM2/DQ0i', 'Lê Văn Shipper',      '0901000003', TRUE),
-(4, 'support@greenshop.vn', '$2a$10$WD9TzMIoFF2HeQ2i8mg9COIf8o7MY.jlAo3mR58q1ASMduxLxwIoe', 'Phạm Thị Support',    '0901000004', TRUE),
-(1, 'khach1@gmail.com',     '$2a$10$bYepmqDIFtLHufQ39FhQxuX2dhPeUtzDcvf0868FSOgyGpCf0lhmi', 'Hoàng Minh Tuấn',     '0912345601', TRUE),
-(1, 'khach2@gmail.com',     '$2a$10$uSQpjK3zgkNtvaCz4daxt.jlbT7p05zWykHz2qqtCff4tfIjKw5dm', 'Nguyễn Thị Lan',      '0912345602', TRUE),
-(1, 'khach3@gmail.com',     '$2a$10$6C6K1VVzL3AU1awnFwIs/erFeGnZa2afajieslO/VWhUUPADeW2re', 'Vũ Đức Thành',        '0912345603', TRUE),
-(1, 'khach4@gmail.com',     '$2a$10$DSoyFP33CagNeomlF.gUteBOxPzTICRHfWtwlg0jD6i.wDfUuqDDm', 'Đặng Thu Hương',      '0912345604', TRUE),
-(1, 'khach5@gmail.com',     '$2a$10$cIjhGxmnba.JgJcr7qi9a.Q25KOvM0O2tucA3l7gpQueqNbyQN6gG', 'Bùi Quang Huy',       '0912345605', TRUE),
-(1, 'khach6@gmail.com',     '$2a$10$lLkYkek4Cc39DHC4WVnWJuKWVJS1nOSmHVdxYYfobuEjxVcbM57f2','Lý Thị Mai',          '0912345606', TRUE);
+(5, 'admin@greenshop.vn',   '$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu', 'Nguyễn Văn Admin',    '0901000001', TRUE),
+(2, 'manager@greenshop.vn', '$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu', 'Trần Thị Manager',    '0901000002', TRUE),
+(3, 'shipper1@greenshop.vn','$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu', 'Lê Văn Shipper',      '0901000003', TRUE),
+(4, 'support@greenshop.vn', '$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu', 'Phạm Thị Support',    '0901000004', TRUE),
+(1, 'khach1@gmail.com',     '$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu', 'Hoàng Minh Tuấn',     '0912345601', TRUE),
+(1, 'khach2@gmail.com',     '$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu', 'Nguyễn Thị Lan',      '0912345602', TRUE),
+(1, 'khach3@gmail.com',     '$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu', 'Vũ Đức Thành',        '0912345603', TRUE),
+(1, 'khach4@gmail.com',     '$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu', 'Đặng Thu Hương',      '0912345604', TRUE),
+(1, 'khach5@gmail.com',     '$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu', 'Bùi Quang Huy',       '0912345605', TRUE),
+(1, 'khach6@gmail.com',     '$2a$10$xEe5uVG5dQA4l.WIaogwXuVc8RbVxM8TnZElT9TO4buXMnf5QrCBu','Lý Thị Mai',          '0912345606', TRUE);
 
 -- ============================================================
 --  CATEGORIES — 6 danh mục
@@ -544,11 +544,11 @@ INSERT INTO reviews (order_id, product_id, customer_id, rating, comment) VALUES
 --  TICKETS
 -- ============================================================
 INSERT INTO tickets (creator_id, assignee_id, title, detail, state, priority) VALUES
-(5,  4, 'Cây bị héo sau 2 ngày nhận hàng', 'Tôi nhận cây kim tiền nhưng sau 2 ngày lá bắt đầu héo vàng, không biết do vận chuyển hay cây bệnh.', 'Khiếu nại sản phẩm', 'PROCESSING', 'HIGH'),
-(6,  4, 'Đơn hàng giao sai sản phẩm',       'Tôi đặt Monstera nhỏ nhưng nhận được Pothos, mong shop kiểm tra và giao đúng sản phẩm.', 'Giao hàng sai', 'PROCESSING', 'CRITICAL'),
-(7,  NULL,'Tư vấn chọn cây cho phòng ngủ', 'Phòng ngủ tôi ít ánh sáng, muốn trồng vài cây nhỏ trang trí, nhờ shop tư vấn loại cây phù hợp.', 'Tư vấn', 'CREATED', 'LOW'),
-(8,  4, 'Hỏi về cách chăm sóc sen đá',     'Tôi mới mua sen đá lần đầu, không biết tưới bao nhiêu và để ở đâu là đúng. Nhờ shop hướng dẫn.', 'Tư vấn', 'RESOLVED', 'MEDIUM'),
-(9,  NULL,'Yêu cầu đổi trả cây bị hỏng',   'Cây nhận về bị gãy cành do đóng gói không kỹ, muốn đổi cây mới hoặc hoàn tiền.', 'Đổi trả', 'CREATED', 'HIGH');
+(5,  4, 'Cây bị héo sau 2 ngày nhận hàng', 'Tôi nhận cây kim tiền nhưng sau 2 ngày lá bắt đầu héo vàng, không biết do vận chuyển hay cây bệnh.', 'PROCESSING', 'HIGH'),
+(6,  4, 'Đơn hàng giao sai sản phẩm',       'Tôi đặt Monstera nhỏ nhưng nhận được Pothos, mong shop kiểm tra và giao đúng sản phẩm.', 'PROCESSING', 'CRITICAL'),
+(7,  NULL,'Tư vấn chọn cây cho phòng ngủ', 'Phòng ngủ tôi ít ánh sáng, muốn trồng vài cây nhỏ trang trí, nhờ shop tư vấn loại cây phù hợp.', 'CREATED', 'LOW'),
+(8,  4, 'Hỏi về cách chăm sóc sen đá',     'Tôi mới mua sen đá lần đầu, không biết tưới bao nhiêu và để ở đâu là đúng. Nhờ shop hướng dẫn.', 'RESOLVED', 'MEDIUM'),
+(9,  NULL,'Yêu cầu đổi trả cây bị hỏng',   'Cây nhận về bị gãy cành do đóng gói không kỹ, muốn đổi cây mới hoặc hoàn tiền.', 'CREATED', 'HIGH');
 
 -- ============================================================
 --  COMMENTS

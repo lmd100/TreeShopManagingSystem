@@ -53,6 +53,9 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-example}
       JWT_SECRET: ${JWT_SECRET:-a-string-for-testing}
       JWT_LIFETIME: ${JWT_LIFETIME:-86400}
+      JWT_COOKIE_NAME: ${JWT_COOKIE_NAME:-hihi}
+      JWT_COOKIE_SECURE: ${JWT_COOKIE_SECURE:-false}
+      JWT_ISSUER: ${JWT_ISSUER:-treeshop}
     depends_on:
       db:
         condition: service_healthy

@@ -36,7 +36,7 @@ public class ProfileController {
                     .body("Invalid token");
         }
 
-        UserDTO user = userService.getUserByEmail(jwtUser.getEmail())
+        UserDTO user = userService.getUserByEmailUnprotected(jwtUser.getEmail())
                 .orElse(null);
 
         if (user == null) {
@@ -63,7 +63,7 @@ public class ProfileController {
                     .body("Invalid token");
         }
 
-        UserDTO currentUser = userService.getUserByEmail(jwtUser.getEmail())
+        UserDTO currentUser = userService.getUserByEmailUnprotected(jwtUser.getEmail())
                 .orElse(null);
 
         if (currentUser == null) {
