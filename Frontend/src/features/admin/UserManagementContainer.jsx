@@ -166,6 +166,7 @@ export function UserManagementContainer() {
         onCreated={refetch}
       />
       <EditUserModal
+        key={editingUser?.id ?? "edit-user"}
         user={editingUser}
         isOpen={!!editingUser}
         onClose={() => setEditingUser(null)}

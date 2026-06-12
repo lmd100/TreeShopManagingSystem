@@ -47,8 +47,8 @@ public class ProfileController {
                 user.getEmail(),
                 user.getFullName(),
                 user.getPhone() != null ? user.getPhone() : "",
-                user.isStatus(),
-                user.getPassword() != null && !user.getPassword().isBlank()
+                Boolean.TRUE.equals(user.getStatus()),
+                true
         );
 
         return ResponseEntity.ok(response);
@@ -81,8 +81,8 @@ public class ProfileController {
                     updatedUser.getEmail(),
                     updatedUser.getFullName(),
                     updatedUser.getPhone() != null ? updatedUser.getPhone() : "",
-                    updatedUser.isStatus(),
-                    updatedUser.getPassword() != null && !updatedUser.getPassword().isBlank()
+                    Boolean.TRUE.equals(updatedUser.getStatus()),
+                    true
             );
 
             return ResponseEntity.ok(response);

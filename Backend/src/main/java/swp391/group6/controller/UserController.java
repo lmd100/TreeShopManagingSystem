@@ -93,19 +93,7 @@ public class UserController {
                                               @RequestBody UserDTO userDTO,
                                               HttpServletRequest request) {
         LoginResponse currentUser = JWTUtil.getUser(request);
-        if (currentUser == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        String role = currentUser.getRole();
-
-        boolean isOwnProfile = userService.getUserByEmail(currentUser.getEmail())
-                .map(u -> u.getId() == id)
-                .orElse(false);
-
-        if (!"SYSTEM_ADMIN".equalsIgnoreCase(role)
-                && !isOwnProfile
-                && !"MANAGER".equalsIgnoreCase(role)) {
+        if (currentUser == null || !"SYSTEM_ADMIN".equalsIgnoreCase(currentUser.getRole())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -129,8 +117,8 @@ public class UserController {
         }
 
         try {
-            UserDTO updatedUser = userService.getUserByEmail(currentUser.getEmail())
-                    .map(u -> userService.updateUser(u.getId(), userDTO))
+            UserDTO updatedUser = userService.getUserByEmailUnprotected(currentUser.getEmail())
+                    .map(u -> userService.updateProfile(u.getId(), userDTO))
                     .orElse(null);
 
             if (updatedUser == null) {
