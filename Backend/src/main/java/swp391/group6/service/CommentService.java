@@ -45,10 +45,6 @@ public class CommentService {
             throw new RuntimeException("Unauthorized: You do not have permission to comment on this ticket.");
         }
 
-        if (!isCreator && !isAssignee) {
-            throw new RuntimeException("Unauthorized: You do not have permission to comment on this ticket.");
-        }
-
         Comment newComment = new Comment();
         newComment.setCommentCreator(commentCreator);
         newComment.setTicket(ticket);

@@ -39,15 +39,19 @@ public class User {
     private Timestamp createdAt;
 
     @OneToMany(mappedBy = "commentCreator")
+    @JsonIgnore
     private List<Comment> commentList;
 
     @OneToMany(mappedBy = "ticketCreator")
+    @JsonIgnore
     private List<Ticket> ticketList;
 
     @OneToMany(mappedBy = "assignee")
+    @JsonIgnore
     private List<Ticket> assignedTicketList;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Review> reviewList;
 
     @OneToMany(mappedBy = "user")
@@ -55,6 +59,7 @@ public class User {
     private List<Order> orderList;
 
     @OneToOne(mappedBy = "customer")
+    @JsonIgnore
     private ShoppingCart shoppingCart;
 
     public long getId() { return id; }
