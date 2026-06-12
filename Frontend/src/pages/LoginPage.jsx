@@ -1,10 +1,7 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-
-function canAccessManagement(role) {
-  return role === 'MANAGER' || role === 'SYSTEM_ADMIN'
-}
+import { resolvePostLoginPath } from '../utils/roleNavigation'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -14,7 +11,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const fromPath = location.state?.from?.pathname || '/manage'
+  const fromPath = location.state?.from?.pathname
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -27,10 +24,7 @@ export default function LoginPage() {
     setError('')
     try {
       const loggedInUser = await login(values.email, values.password)
-      const targetPath = canAccessManagement(loggedInUser.role)
-          ? fromPath === '/login' ? '/manage' : fromPath
-          : '/catalog'
-      navigate(targetPath, { replace: true })
+      navigate(resolvePostLoginPath(loggedInUser.role, fromPath), { replace: true })
     } catch (loginError) {
       setError(loginError.message || 'Invalid email or password')
     } finally {

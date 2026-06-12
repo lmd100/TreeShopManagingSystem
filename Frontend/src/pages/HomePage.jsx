@@ -1,5 +1,11 @@
 ﻿import { Link } from 'react-router-dom'
 import Container from '../components/global/Container'
+import { useAuth } from '../context/AuthContext'
+import {
+  getHomePathForRole,
+  getNavLinksForRole,
+  normalizeRole,
+} from '../utils/roleNavigation'
 
 function ActionLink({ to, children, variant = 'primary' }) {
   const baseClass =
@@ -25,6 +31,16 @@ function ActionLink({ to, children, variant = 'primary' }) {
 }
 
 export default function HomePage() {
+  const { isAuthenticated, user } = useAuth()
+  const role = normalizeRole(user)
+  const roleLinks = isAuthenticated
+    ? getNavLinksForRole(role).filter((link) => link.to !== '/')
+    : [
+        { to: '/catalog', label: 'Vào catalog' },
+        { to: '/login', label: 'Đăng nhập' },
+      ]
+  const primaryPath = isAuthenticated ? getHomePathForRole(role) : '/catalog'
+
   return (
     <main>
       <section className="bg-gradient-to-br from-emerald-50 via-white to-lime-50">
@@ -35,18 +51,25 @@ export default function HomePage() {
                 Khám phá cây xanh cho không gian sống gần gũi và dễ chăm hơn
               </h1>
               <p className="max-w-2xl text-lg text-[var(--text)]">
-                Một cửa vào nhẹ nhàng cho khách yêu cây: xem gợi ý, tìm cảm hứng và bước vào catalog
-                để chọn cây phù hợp với nhà ở, bàn làm việc hay góc thư giãn.
+                {isAuthenticated
+                  ? `Chào ${user?.fullName || user?.email || 'bạn'} — chọn luồng làm việc theo vai trò của bạn.`
+                  : 'Một cửa vào nhẹ nhàng cho khách yêu cây: xem gợi ý, tìm cảm hứng và bước vào catalog để chọn cây phù hợp.'}
               </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <ActionLink to="/catalog" variant="primary">
-                Vào catalog
+              <ActionLink to={primaryPath} variant="primary">
+                {isAuthenticated ? 'Vào trang chính của tôi' : 'Vào catalog'}
               </ActionLink>
-              <ActionLink to="/manage" variant="secondary">
-                Vào quản lý
-              </ActionLink>
+              {roleLinks.map((link, index) => (
+                <ActionLink
+                  key={link.to}
+                  to={link.to}
+                  variant={index === 0 ? 'secondary' : 'secondary'}
+                >
+                  {link.label}
+                </ActionLink>
+              ))}
             </div>
 
             <p className="max-w-2xl text-sm text-[var(--text)]">
@@ -67,8 +90,8 @@ export default function HomePage() {
                 Trang đầu giữ vai trò dẫn hướng đơn giản cho khách xem cây và cho quản trị viên cập nhật dữ liệu.
               </p>
             </div>
-            <ActionLink to="/manage" variant="primary">
-              Mở trang quản lý
+            <ActionLink to={isAuthenticated ? primaryPath : '/login'} variant="primary">
+              {isAuthenticated ? 'Tiếp tục công việc' : 'Đăng nhập'}
             </ActionLink>
           </div>
         </Container>

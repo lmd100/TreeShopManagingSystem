@@ -13,6 +13,11 @@ import ProductDetailPage from './pages/ProductDetailPage'
 import ProfilePage from './pages/ProfilePage'
 import RegisterPage from './pages/RegisterPage'
 import UserManagement from './pages/UserManagement'
+import {
+  getHomePathForRole,
+  isAdminRole,
+  normalizeRole,
+} from './utils/roleNavigation'
 
 function RequireAuth({ children, managerOnly = false }) {
   const { isAuthenticated, canManage, isLoading } = useAuth()
@@ -38,7 +43,8 @@ function RequireAuth({ children, managerOnly = false }) {
 }
 
 function ProtectedAdminRoute({ element }) {
-  const { isAdmin, isLoading } = useAuth()
+  const { user, isLoading } = useAuth()
+  const isAdmin = isAdminRole(user)
 
   if (isLoading) {
     return (
@@ -59,18 +65,14 @@ function ProtectedAdminRoute({ element }) {
 }
 
 function PublicOnlyRoute({ children }) {
-  const { isAuthenticated, canManage, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, user } = useAuth()
 
   if (isLoading) {
     return null
   }
 
-  if (isAuthenticated && canManage) {
-    return <Navigate to="/manage" replace />
-  }
-
   if (isAuthenticated) {
-    return <Navigate to="/catalog" replace />
+    return <Navigate to={getHomePathForRole(normalizeRole(user))} replace />
   }
 
   return children
@@ -114,7 +116,7 @@ function AppRoutes() {
           </RequireAuth>
         }
       />
-      <Route path="/admin" element={<Navigate to="/manage" replace />} />
+      <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
       <Route path="/tickets" element={<TicketDashboard />} />
       <Route path="/tickets/:id" element={<TicketDetail />} />
       <Route path="/orders" element={<OrderManagement />} />

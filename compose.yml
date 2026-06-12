@@ -1,4 +1,4 @@
-# Use postgres/example user/password credentials
+# Dev: docker compose up db app  (+ npm run dev in Frontend)
 
 services:
   db:
@@ -7,47 +7,58 @@ services:
       dockerfile: DB_Dockerfile
     image: my_postgre_db
     restart: unless-stopped
-    # set shared memory limit when using docker compose
     shm_size: 128mb
-    # or set shared memory limit when deploy via swarm stack
-    #volumes:
-    #  - type: tmpfs
-    #    target: /dev/shm
-    #    tmpfs:
-    #      size: 134217728 # 128*2^20 bytes = 128Mb
-    #environment:
-    #  POSTGRES_USER: sa
-    #  POSTGRES_PASSWORD: example
-    env_file: ".env"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-example}
+      POSTGRES_DB: ${POSTGRES_DB:-app}
     ports:
-      - 5432:5432
+      # Host 5433 avoids conflict with local PostgreSQL on 5432
+      - '${POSTGRES_HOST_PORT:-5433}:5432'
     networks:
       - backend
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
 
   pqAdmin:
     image: dpage/pgadmin4
     restart: unless-stopped
-    env_file: ".env"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     ports:
       - 81:80
     networks:
       - backend
+    depends_on:
+      db:
+        condition: service_healthy
 
   app:
-    build: 
+    build:
       context: ./Backend
       dockerfile: ./Dockerfile
-    ports:
-    - 8080:8080
     image: treeshopmanagingsystem:latest
     restart: unless-stopped
-    env_file: ".env"
-    depends_on: 
-      - db
+    ports:
+      - '${SERVER_PORT:-8080}:${SERVER_PORT:-8080}'
+    environment:
+      SERVER_PORT: ${SERVER_PORT:-8080}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-app}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-example}
+      JWT_SECRET: ${JWT_SECRET:-a-string-for-testing}
+      JWT_LIFETIME: ${JWT_LIFETIME:-86400}
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
-      - frontend
       - backend
-  
+
   frontend:
     build:
       context: ./Frontend
@@ -56,11 +67,11 @@ services:
     restart: unless-stopped
     networks:
       - frontend
-    ports: 
+    ports:
       - 3000:3000
 
 networks:
-  frontend:
-    driver: bridge
   backend:
+    driver: bridge
+  frontend:
     driver: bridge

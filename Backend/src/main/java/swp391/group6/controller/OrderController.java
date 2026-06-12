@@ -54,8 +54,11 @@ public class OrderController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> changeOrder(@PathVariable long id, @RequestBody Order order) {
-        if (!orderService.changeOrder(id, order)) {
+    public ResponseEntity<Void> changeOrder(
+            HttpServletRequest request,
+            @PathVariable long id,
+            @RequestBody Order order) {
+        if (!orderService.changeOrder(request, id, order)) {
             return ResponseEntity.badRequest().build();
         }
 
