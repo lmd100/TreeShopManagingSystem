@@ -1,5 +1,5 @@
 import { useReducer, useEffect, useContext } from "react";
-import { AuthContext } from "../../../context/AuthContext";
+import { AuthContext } from "../../../context/AuthState";
 import {
 	createComment,
 	fetchComments,

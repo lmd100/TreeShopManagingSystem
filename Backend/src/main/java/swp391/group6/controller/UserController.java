@@ -24,13 +24,24 @@ public class UserController {
 
     // get all users
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers(HttpServletRequest request) {
+    public ResponseEntity<List<UserDTO>> getAllUsers(
+            @RequestParam(required = false) String role,
+            HttpServletRequest request) {
         LoginResponse currentUser = JWTUtil.getUser(request);
-        if (currentUser == null || !"SYSTEM_ADMIN".equalsIgnoreCase(currentUser.getRole())) {
+        if (currentUser == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        boolean isAdmin = "SYSTEM_ADMIN".equalsIgnoreCase(currentUser.getRole());
+        boolean isManagerRequestingShippers = "MANAGER".equalsIgnoreCase(currentUser.getRole())
+                && "SHIPPER".equalsIgnoreCase(role);
+        if (!isAdmin && !isManagerRequestingShippers) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        List<UserDTO> users = userService.getAllUsers();
+        List<UserDTO> users = role == null || role.isBlank()
+                ? userService.getAllUsers()
+                : userService.getUsersByRole(role);
         return ResponseEntity.ok(users);
     }
 

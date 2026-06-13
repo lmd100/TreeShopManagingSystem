@@ -7,8 +7,8 @@ import swp391.group6.model.*;
 import swp391.group6.repository.OrderRepository;
 import swp391.group6.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -34,7 +34,7 @@ public class OrderService {
             }
         } else {
             User fullUser = userRepository.findByEmail(loginResponse.getEmail()).orElse(null);
-            if (fullUser == null) return new ArrayList<>();
+            if (fullUser == null) return List.of();
             long uid = fullUser.getId();
             if (hasStatusFilter) {
                 return orderRepository.searchByStatusInAndUserIdOrShipperId(statuses, query, uid, uid);
@@ -64,20 +64,32 @@ public class OrderService {
         return true;
     }
 
-    public boolean changeOrder(LoginResponse loginResponse, long id, Order order) {
-        //TODO placeholder, implement this
-        User user = userRepository.findByEmail(loginResponse.getEmail()).orElse(null);
-        boolean changed = false;
-        if (order.getShipper() != null && user.getRole().getName().equals("MANAGER")) {
-            order.setShipper(user);
-            changed = true;
+    public Order assignShipper(LoginResponse loginResponse, long id, Long shipperId) {
+        if (loginResponse == null
+                || (!"MANAGER".equalsIgnoreCase(loginResponse.getRole())
+                && !"SYSTEM_ADMIN".equalsIgnoreCase(loginResponse.getRole()))) {
+            return null;
         }
 
-        if (changed) {
-            orderRepository.save(order);
+        Order existingOrder = orderRepository.findById(id).orElse(null);
+        if (existingOrder == null) {
+            return null;
         }
 
-        return changed;
+        if (shipperId == null) {
+            existingOrder.setShipper(null);
+        } else {
+            User shipper = userRepository.findById(shipperId).orElse(null);
+            if (shipper == null
+                    || shipper.getRole() == null
+                    || !"SHIPPER".equalsIgnoreCase(shipper.getRole().getName())
+                    || !shipper.isStatus()) {
+                return null;
+            }
+            existingOrder.setShipper(shipper);
+        }
+
+        return orderRepository.save(existingOrder);
     }
 
     public boolean changeOrderStatus(long id, OrderStatus orderStatus, LoginResponse loginResponse) {
@@ -86,8 +98,13 @@ public class OrderService {
         if (order == null) {
             return false;
         }
-        if (!canModifyAllOrder(loginResponse)) {
-            if (!order.getUser().equals(user) && !order.getShipper().equals(user)) {
+        if (canModifyAllOrder(loginResponse)) {
+            order.setStatus(orderStatus);
+        } else {
+            boolean isManager = "MANAGER".equalsIgnoreCase(loginResponse.getRole());
+            if (!isManager
+                    && !Objects.equals(order.getUser(), user)
+                    && !Objects.equals(order.getShipper(), user)) {
                 return false;
             }
 

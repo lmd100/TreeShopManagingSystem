@@ -38,6 +38,8 @@ export default function useFetchAllShippers() {
     };
 
     useEffect(() => {
+        // Shipper options are synchronized with the API when the selector mounts.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchShippers();
     }, []);
 

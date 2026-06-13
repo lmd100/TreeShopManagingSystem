@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const FILTER_TO_STATUSES = {
     ALL: [],
@@ -17,20 +17,16 @@ export default function useFetchAllOrders() {
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const debounceTimerRef = useRef(null);
-
-    const fetchOrders = async () => {
-        const activeFilter = selectedFilter;
-        const activeQuery = searchQuery;
-        const statuses = FILTER_TO_STATUSES[activeFilter] || [];
+    const fetchOrders = useCallback(async () => {
+        const statuses = FILTER_TO_STATUSES[selectedFilter] || [];
 
         setIsLoading(true);
         setError(null);
         try {
             const params = new URLSearchParams();
             statuses.forEach((s) => params.append('statusList', s));
-            if (activeQuery.trim()) {
-                params.append('query', activeQuery.trim());
+            if (searchQuery.trim()) {
+                params.append('query', searchQuery.trim());
             }
 
             const queryString = params.toString();
@@ -57,42 +53,23 @@ export default function useFetchAllOrders() {
         } finally {
             setIsLoading(false);
         }
-};
+    }, [searchQuery, selectedFilter]);
 
-    const changeFilter = (newFilter) => {
-        setSelectedFilter(newFilter);
-        fetchOrders();
-    }
-
-    const changeSearchQuery = (newQuery) => {
-        setSearchQuery(newQuery);
-
-        if (debounceTimerRef.current) {
-            clearTimeout(debounceTimerRef.current);
-        }
-        debounceTimerRef.current = setTimeout(() => {
-            fetchOrders();
-        }, DEBOUNCE_MS);
-    };
-
-    // Cleanup debounce timer on unmount
     useEffect(() => {
-        
+        const timer = setTimeout(fetchOrders, searchQuery ? DEBOUNCE_MS : 0);
         return () => {
-            if (debounceTimerRef.current) {
-                clearTimeout(debounceTimerRef.current);
-            }
+            clearTimeout(timer);
         };
-    }, []);
+    }, [fetchOrders, searchQuery]);
 
     return {
         orders,
         isLoading,
         error,
         selectedFilter,
-        setSelectedFilter: changeFilter,
+        setSelectedFilter,
         searchQuery,
-        setSearchQuery: changeSearchQuery,
+        setSearchQuery,
         fetchOrders,
     };
 }

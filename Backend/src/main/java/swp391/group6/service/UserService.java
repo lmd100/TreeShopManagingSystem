@@ -34,6 +34,14 @@ public class UserService {
                 .toList();
     }
 
+    public List<UserDTO> getUsersByRole(String roleName) {
+        return userRepository.findAll().stream()
+                .filter(user -> hasRole(user, roleName))
+                .filter(User::isStatus)
+                .map(this::convertToDTO)
+                .toList();
+    }
+
     public Optional<UserDTO> getUserById(long id) {
         return userRepository.findById(id)
                 .filter(user -> !hasRole(user, PROTECTED_ROLE_NAME))

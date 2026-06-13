@@ -1,19 +1,15 @@
 package swp391.group6.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.websocket.server.PathParam;
-import lombok.extern.java.Log;
-import org.antlr.v4.runtime.atn.SemanticContext;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import swp391.group6.dto.LoginResponse;
 import swp391.group6.dto.OrderDTO;
 import swp391.group6.dto.OrderListDTO;
+import swp391.group6.dto.OrderUpdateDTO;
 import swp391.group6.model.Order;
 import swp391.group6.model.OrderStatus;
 import swp391.group6.model.ShoppingCart;
-import swp391.group6.model.User;
 import swp391.group6.service.OrderService;
 import swp391.group6.util.JWTUtil;
 
@@ -63,13 +59,17 @@ public class OrderController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> changeOrder(HttpServletRequest request, @PathVariable long id, @RequestBody Order order) {
+    public ResponseEntity<OrderDTO> changeOrder(
+            HttpServletRequest request,
+            @PathVariable long id,
+            @RequestBody OrderUpdateDTO update) {
         LoginResponse loginResponse = JWTUtil.getUser(request);
-        if (!orderService.changeOrder(loginResponse, id, order)) {
+        Order changedOrder = orderService.assignShipper(loginResponse, id, update.getShipperId());
+        if (changedOrder == null) {
             return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(new OrderDTO(changedOrder));
     }
 
     @PutMapping("{id}/status")

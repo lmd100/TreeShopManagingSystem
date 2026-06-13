@@ -14,6 +14,8 @@ public class OrderListDTO {
     private BigDecimal discount;
     private Timestamp createdAt;
     private OrderStatus status;
+    private int itemCount;
+    private BigDecimal total;
 
     public OrderListDTO() {}
 
@@ -24,6 +26,17 @@ public class OrderListDTO {
         this.discount = order.getDiscount();
         this.createdAt = order.getCreatedAt();
         this.status = order.getStatus();
+        this.itemCount = order.getOrderDetailList() == null
+                ? 0
+                : order.getOrderDetailList().stream().mapToInt(detail -> detail.getQuantity()).sum();
+        BigDecimal itemTotal = order.getOrderDetailList() == null
+                ? BigDecimal.ZERO
+                : order.getOrderDetailList().stream()
+                        .map(detail -> detail.getPricePaid().multiply(BigDecimal.valueOf(detail.getQuantity())))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+        this.total = itemTotal
+                .add(order.getShippingFee() == null ? BigDecimal.ZERO : order.getShippingFee())
+                .subtract(order.getDiscount() == null ? BigDecimal.ZERO : order.getDiscount());
     }
 
     public long getId() { return id; }
@@ -43,4 +56,10 @@ public class OrderListDTO {
 
     public OrderStatus getStatus() { return status; }
     public void setStatus(OrderStatus status) { this.status = status; }
+
+    public int getItemCount() { return itemCount; }
+    public void setItemCount(int itemCount) { this.itemCount = itemCount; }
+
+    public BigDecimal getTotal() { return total; }
+    public void setTotal(BigDecimal total) { this.total = total; }
 }

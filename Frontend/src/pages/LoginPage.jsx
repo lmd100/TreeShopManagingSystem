@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/AuthState'
 import { resolvePostLoginPath } from '../utils/roleNavigation'
 
 export default function LoginPage() {

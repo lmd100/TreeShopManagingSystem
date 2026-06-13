@@ -3,7 +3,8 @@ import Footer from './components/global/Footer'
 import Header from './components/global/Header'
 import TicketDashboard from './features/tickets/components/TicketDashboard'
 import TicketDetail from './features/tickets/components/TicketDetail'
-import { AuthProvider, useAuth } from './context/AuthContext'
+import { AuthProvider } from './context/AuthContext'
+import { useAuth } from './context/AuthState'
 import CatalogPage from './pages/CatalogPage'
 import ChangePasswordPage from './pages/ChangePasswordPage'
 import HomePage from './pages/HomePage'
@@ -128,8 +129,15 @@ function AppRoutes() {
       <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
       <Route path="/tickets" element={<TicketDashboard />} />
       <Route path="/tickets/:id" element={<TicketDetail />} />
-      <Route path="/orders" element={<OrderManagement />} />
-      <Route path="/orders/*" element={<OrderManagement />} />
+      <Route
+        path="/orders"
+        element={
+          <RequireAuth>
+            <OrderManagement />
+          </RequireAuth>
+        }
+      />
+      <Route path="/orders/*" element={<Navigate to="/orders" replace />} />
       <Route
         path="/admin/users"
         element={<ProtectedAdminRoute element={<UserManagement />} />}

@@ -1,14 +1,12 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { AuthContext } from './AuthState'
 import {
   login as loginRequest,
   logout as logoutRequest,
   register as registerRequest,
 } from '../features/auth/authApi'
-import { loginApi, registerApi } from '../data/authApi'
 
 const STORAGE_KEY = 'treeshop-auth-user'
-
-export const AuthContext = createContext(null)
 
 function readStoredUser() {
   if (typeof window === 'undefined') {
@@ -61,15 +59,10 @@ function canManageRole(user) {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => normalizeUser(readStoredUser()))
-  const [isLoading, setIsLoading] = useState(() => !readStoredUser())
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (user) {
-      setIsLoading(false)
-      return
-    }
-
     let cancelled = false
 
     async function fetchCurrentUser() {
@@ -133,31 +126,6 @@ export function AuthProvider({ children }) {
     await registerRequest(fullName, email, password)
   }
 
-  async function executeAuth(authOption = 'login', formData) {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      let userData
-      if (authOption === 'login') {
-        userData = normalizeUser(await loginApi(formData))
-      } else if (authOption === 'register') {
-        userData = normalizeUser(await registerApi(formData))
-      } else {
-        throw new Error(`Unsupported auth option: ${authOption}`)
-      }
-
-      setUser(userData)
-      persistUser(userData)
-      return userData
-    } catch (err) {
-      setError(err.message || String(err))
-      throw err
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   async function logout() {
     try {
       await logoutRequest()
@@ -182,7 +150,6 @@ export function AuthProvider({ children }) {
       register,
       logout,
       updateUser,
-      executeAuth,
       isLoading,
       error,
       isAuthenticated: Boolean(user),
@@ -193,14 +160,4 @@ export function AuthProvider({ children }) {
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-
-  return context
 }

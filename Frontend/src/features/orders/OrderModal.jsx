@@ -1,22 +1,94 @@
+import { useState } from "react";
 import { Modal } from "../../components/ui/Modal";
 import { Button } from "../../components/ui/Button";
 import { timeFormat } from "../../utils/timeFormat";
+import { useAuth } from "../../context/AuthState";
 import ShipperSelect from "./ShipperSelect";
 import ORDER_STATUS_MAP from "./data/orderStatusMap";
 
+const TRANSITIONS = {
+    MANAGER: {
+        PROCESSING: ['PENDING'],
+        PENDING: ['DELIVERING'],
+        RETURN_PENDING: ['RETURNING'],
+    },
+    SHIPPER: {
+        DELIVERING: ['ARRIVED', 'FAILED'],
+        RETURNING: ['FAILED'],
+    },
+    CUSTOMER: {
+        ARRIVED: ['RECEIVED', 'RETURN_PENDING'],
+    },
+};
+
 /**
- * @param {{ selectedOrder: object|null, onClose: () => void }} props
+ * @param {{ selectedOrder: object|null, onClose: () => void, onOrderUpdated: (order: object) => void }} props
  */
-export default function OrderModal({ selectedOrder, onClose }) {
+export default function OrderModal({ selectedOrder, onClose, onOrderUpdated }) {
+    const { user } = useAuth();
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [updateError, setUpdateError] = useState(null);
+
     if (!selectedOrder) return null;
 
+    const role = user?.roleName ?? user?.role;
     const details = selectedOrder.orderDetailList || [];
     const itemsTotal = details.reduce((sum, item) => sum + (Number(item.pricePaid || 0) * (item.quantity || 0)), 0);
     const shippingFee = Number(selectedOrder.shippingFee || 0);
     const discount = Number(selectedOrder.discount || 0);
     const finalTotal = Math.max(0, itemsTotal + shippingFee - discount);
 
-    const statusConfig = ORDER_STATUS_MAP[selectedOrder.status];
+    const statusConfig = ORDER_STATUS_MAP[selectedOrder.status]
+        || { bg: 'bg-gray-100 text-gray-700', label: selectedOrder.status };
+    const allowedStatuses = TRANSITIONS[role]?.[selectedOrder.status] || [];
+
+    const updateShipper = async (shipperId) => {
+        setIsUpdating(true);
+        setUpdateError(null);
+        try {
+            const response = await fetch(`/api/orders/${selectedOrder.id}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    shipperId: shipperId ? Number(shipperId) : null,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Unable to update the assigned shipper.');
+            }
+            onOrderUpdated(await response.json());
+        } catch (error) {
+            setUpdateError(error.message);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const updateStatus = async (status) => {
+        setIsUpdating(true);
+        setUpdateError(null);
+        try {
+            const response = await fetch(
+                `/api/orders/${selectedOrder.id}/status?status=${encodeURIComponent(status)}`,
+                { method: 'PUT', credentials: 'include' },
+            );
+            if (!response.ok) {
+                throw new Error('That status transition is not allowed.');
+            }
+            const detailResponse = await fetch(`/api/orders/${selectedOrder.id}`, {
+                credentials: 'include',
+            });
+            if (!detailResponse.ok) {
+                throw new Error('The order changed, but its details could not be refreshed.');
+            }
+            onOrderUpdated(await detailResponse.json());
+        } catch (error) {
+            setUpdateError(error.message);
+        } finally {
+            setIsUpdating(false);
+        }
+    };
 
     return (
       <Modal
@@ -40,15 +112,15 @@ export default function OrderModal({ selectedOrder, onClose }) {
           </div>
 
           {/* Shipper Assignment */}
-          <div className="p-3 rounded-lg bg-bg-base border border-border/55">
-            <ShipperSelect
-              value={selectedOrder.shipperId ?? ''}
-              onChange={(shipperId) => {
-                // TODO: wire up to an API call to update the order's shipper
-                console.log(`Assign shipper ${shipperId} to order ${selectedOrder.id}`);
-              }}
-            />
-          </div>
+          {(role === 'MANAGER' || role === 'SYSTEM_ADMIN') && (
+            <div className="p-3 rounded-lg bg-bg-base border border-border/55">
+              <ShipperSelect
+                value={selectedOrder.shipperId ?? ''}
+                onChange={updateShipper}
+                disabled={isUpdating}
+              />
+            </div>
+          )}
 
           {/* Items Section */}
           <div>
@@ -58,10 +130,10 @@ export default function OrderModal({ selectedOrder, onClose }) {
                 <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-bg-base border border-border/55">
                   <div className="flex flex-col max-w-[200px]">
                     <span className="text-sm font-semibold text-black/90 truncate">
-                      {item.product?.name || 'Unknown Product'}
+                      {item.productName || item.product?.name || 'Unknown Product'}
                     </span>
                     <span className="text-[10px] text-black/45 mt-0.5">
-                      SKU: {item.product?.sku || 'N/A'}
+                      SKU: {item.sku || item.product?.sku || 'N/A'}
                     </span>
                   </div>
                   <div className="text-right flex flex-col">
@@ -79,6 +151,31 @@ export default function OrderModal({ selectedOrder, onClose }) {
               )}
             </div>
           </div>
+
+          {allowedStatuses.length > 0 && (
+            <div className="p-3 rounded-lg bg-bg-base border border-border/55">
+              <h4 className="text-xs font-bold text-black/60 uppercase tracking-wider mb-2">
+                Available Actions
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {allowedStatuses.map((status) => (
+                  <Button
+                    key={status}
+                    variant="secondary"
+                    size="sm"
+                    disabled={isUpdating}
+                    onClick={() => updateStatus(status)}
+                  >
+                    Mark as {ORDER_STATUS_MAP[status]?.label ?? status}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {updateError && (
+            <p className="text-sm text-red-600">{updateError}</p>
+          )}
 
           {/* Shipping Address */}
           <div className="p-3 rounded-lg bg-bg-base border border-border/55">

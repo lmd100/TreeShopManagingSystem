@@ -1,13 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../../context/AuthContext";
+import { AuthContext } from "../../../context/AuthState";
 import useFetchAllTickets from "./useFetchAllTickets";
 import useFilterAndSortTickets from "./useFilterAndSortTickets";
 import useCreateTicket from "./useCreateTicket";
 
 export const useTicketDashboard = () => {
 	const navigate = useNavigate();
-	const { user, executeAuth } = useContext(AuthContext);
+	const { user } = useContext(AuthContext);
 	const isAgent = user?.role?.toLowerCase() === "support_agent";
 
 	const {
@@ -52,7 +52,6 @@ export const useTicketDashboard = () => {
 		isAgent,
 
 		// Actions
-		executeAuth,
 		navigate,
 		executeFetchAllTickets,
 

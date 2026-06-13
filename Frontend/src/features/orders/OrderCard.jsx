@@ -11,9 +11,10 @@ export function OrderCard({ order, onViewDetails }) {
   }, 0);
   const shippingFee = Number(order.shippingFee || 0);
   const discount = Number(order.discount || 0);
-  const total = Math.max(0, itemsTotal + shippingFee - discount);
+  const total = Number(order.total ?? Math.max(0, itemsTotal + shippingFee - discount));
 
-  const itemsCount = orderDetails.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const itemsCount = order.itemCount
+    ?? orderDetails.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
   const statusConfig = ORDER_STATUS_MAP[order.status] || { bg: 'bg-gray-500/10 text-gray-600 border border-gray-500/20', label: order.status };
 
@@ -50,7 +51,7 @@ export function OrderCard({ order, onViewDetails }) {
               {orderDetails.slice(0, 2).map((item, idx) => (
                 <div key={idx} className="flex justify-between text-sm text-black/85">
                   <span className="truncate max-w-[180px]">
-                    {item.product?.name || 'Unknown Product'}
+                    {item.productName || item.product?.name || 'Unknown Product'}
                   </span>
                   <span className="font-semibold text-black/60">
                     x{item.quantity}
@@ -63,7 +64,9 @@ export function OrderCard({ order, onViewDetails }) {
                 </p>
               )}
               {orderDetails.length === 0 && (
-                <p className="text-sm text-black/50 italic">No products listed</p>
+                <p className="text-sm text-black/50 italic">
+                  {itemsCount} {itemsCount === 1 ? 'item' : 'items'} in this order
+                </p>
               )}
             </div>
           </div>

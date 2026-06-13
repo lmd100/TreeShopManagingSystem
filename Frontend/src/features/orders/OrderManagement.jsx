@@ -1,17 +1,12 @@
-import { useEffect } from 'react';
-import { Header } from '../../components/global/Header';
-import { Footer } from '../../components/global/Footer';
+import { useState } from 'react';
 import { Container } from '../../components/global/Container';
 import { OrderCard } from './OrderCard';
 import { Button } from '../../components/ui/Button';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { useState } from 'react';
-import useAuthUser from '../../hooks/useAuthUser';
 import useFetchAllOrders from './hooks/useFetchAllOrders';
 import OrderModal from './OrderModal';
 
 export default function OrderManagement() {
-  const { executeAuth } = useAuthUser();
   const {
     orders,
     isLoading,
@@ -25,16 +20,30 @@ export default function OrderManagement() {
 
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  useEffect(() => {
-    executeAuth();
-  }, [executeAuth]);
+  const handleViewDetails = async (order) => {
+    setSelectedOrder(order);
+    try {
+      const response = await fetch(`/api/orders/${order.id}`, {
+        credentials: 'include',
+      });
+      if (response.ok) {
+        setSelectedOrder(await response.json());
+      }
+    } catch {
+      // Keep the summary modal usable when the detail request is interrupted.
+    }
+  };
 
-  useEffect(() => {
+  const handleOrderUpdated = (order) => {
+    setSelectedOrder(order);
     fetchOrders();
-  }, [fetchOrders]);
+  };
 
   // Compute metrics
   const totalOrders = orders.length;
+  const activeDeliveries = orders.filter((order) =>
+    ['PENDING', 'DELIVERING', 'RETURN_PENDING', 'RETURNING'].includes(order.status)
+  ).length;
 
   const totalRevenue = orders.reduce((sum, order) => {
     const orderDetails = order.orderDetailList || [];
@@ -45,9 +54,7 @@ export default function OrderManagement() {
   }, 0);
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-base font-main">
-      <Header />
-
+    <>
       <main className="flex-grow py-8 bg-gradient-to-b from-bg-base to-bg-surface/30">
         <Container>
           {/* Header Title Section */}
@@ -78,7 +85,7 @@ export default function OrderManagement() {
             <div className="p-5 rounded-xl border border-border/60 bg-bg-surface/40 backdrop-blur-sm relative overflow-hidden group hover:border-interactive/40 transition-all duration-300">
               <span className="text-xs font-bold uppercase tracking-wider text-black/50">Total Orders</span>
               <p className="text-3xl font-black text-black mt-2">
-                {isLoading ? <Skeleton className="h-9 w-16 mt-1" /> : totalOrders}
+                {isLoading ? <Skeleton className="h-9 w-16 mt-1" /> : activeDeliveries}
               </p>
               <div className="absolute right-4 bottom-4 text-interactive/10 group-hover:text-interactive/20 transition-all duration-300">
                 <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,7 +252,7 @@ export default function OrderManagement() {
                 <OrderCard
                   key={order.id}
                   order={order}
-                  onViewDetails={setSelectedOrder}
+                  onViewDetails={handleViewDetails}
                 />
               ))}
             </div>
@@ -253,13 +260,12 @@ export default function OrderManagement() {
         </Container>
       </main>
 
-      <Footer />
-
       {/* Order Detail Modal */}
       <OrderModal
         selectedOrder={selectedOrder}
         onClose={() => setSelectedOrder(null)}
+        onOrderUpdated={handleOrderUpdated}
       />
-    </div>
+    </>
   );
 }

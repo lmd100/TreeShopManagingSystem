@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../context/AuthState'
 import { getProfile, updateProfile } from './profileApi'
 
 export function useProfile() {
@@ -27,6 +27,8 @@ export function useProfile() {
   }, [])
 
   useEffect(() => {
+    // Profile loading is an intentional mount-time synchronization with the API.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadProfile()
   }, [loadProfile])
 
